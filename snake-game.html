@@ -1,0 +1,188 @@
+<body id="box" style="background-color: #2F4F4F; overflow: hidden;">
+    <div style="display: flex;justify-content: center;">
+        <p style="font-weight: bold; font-weight: bold;font-size: 30px;font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;color: white;margin: 0;padding: 0;">
+            Jogo da Cobrinha
+        </p>
+    </div>
+    <div id="botoesDeDificuldades" style="margin: 10px">
+        <div style="display: flex;justify-content: center;">
+            <p style="color: rgb(17, 16, 16); font-weight: bold;">Escolha sua dificuldade</p>
+        </div>
+        <div style="display: flex;justify-content: center;">
+            <div>
+                <button style="font-weight: bold; width: 100px;margin-left: 5px;" onclick="initGame('easy')">Facil</button>
+            </div>
+            <div>
+                <button style="font-weight: bold; width: 100px;margin-left: 5px" onclick="initGame('medium')">Medio</button>
+            </div>
+            <div>
+                <button style="font-weight: bold; width: 100px;margin-left: 5px" onclick="initGame('hard')">Dificil</button>
+            </div>
+            <div>
+                <button style="font-weight: bold; width: 100px;margin-left: 5px" onclick="initGame('impossible')">Impossivel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="botaoTrocarDificuldade" style="display: none;justify-content: center;margin: 10px;">
+        <div>
+            <button style="font-weight: bold; width: 100px;margin-left: 5px;" onclick="window.location.reload()">Trocar dificuldade</button>
+        </div>
+    </div>
+
+    <div style="width: 100%;display: flex;justify-content: center;">
+        <canvas style="background-color: black; border: 1px black solid;" id="canvas" width="400" height="400"></canvas>
+        <h2 id="textoDificuldade" style="margin-top:180; color: white; position: absolute;">&#9757;Escolha sua dificuldade &#9757; </h2>
+    </div>
+    <div style="display: flex;justify-content: space-between;margin-left: 30px;margin-right: 30px;">
+        <div style="display: flex;justify-content: center; border: 1px white solid; width: 200px;margin-top: 20px;">
+            <p style="font-weight: bold; font-size: 20px;font-weight: bold;color: #fff" id="pontos">Pontos: 0</p>
+        </div>
+        <div style="display: flex;justify-content: center; border: 1px white solid; width: 200px;margin-top: 20px;">
+            <p style="font-weight: bold; font-size: 20px;font-weight: bold;color: #fff;" id="fase">Fase: 1</p>
+        </div>
+    </div>
+    
+</body>
+
+<script>
+    function initGame(dificult) {
+        document.getElementById("botaoTrocarDificuldade").style.display = "flex";
+        document.getElementById("botoesDeDificuldades").style.display = "none";
+        document.getElementById("textoDificuldade").style.display = "none";
+        canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        
+        document.addEventListener("keydown", function (e) {
+            console.log(e.keyCode);
+            switch (e.keyCode) {
+                case 37:
+                    velX = -1;
+                    velY = 0;
+                    break;
+                case 38:
+                    velY = -1;
+                    velX = 0;
+                    break;
+                case 39:
+                    velX = 1;
+                    velY = 0;
+                    break;
+                case 40:
+                    velY = 1;
+                    velX = 0
+                    break;
+            }
+        });
+
+        if(dificult === "easy"){
+            setInterval(jogo, 150);
+        }else if(dificult === "medium"){
+            setInterval(jogo, 100);
+        }else if(dificult === "hard"){
+            setInterval(jogo, 50);
+        }else if(dificult === "impossible"){
+            setInterval(jogo, 1);
+        }
+
+        
+    }
+    //window.onload = initGame("easy");
+
+    positionX = 10;
+    positionY = 10;
+    foodX = 15;
+    foodY = 15;
+    velX = 0;
+    velY = 0;
+    grid = 20;
+    snake = [];
+    tam = 5;
+
+    function jogo() {
+        positionX += velX;
+        positionY += velY;
+
+        if (positionX < 0) {
+            positionX = grid;
+        }
+        if (positionX > grid) {
+            positionX = 0;
+        }
+        if (positionY < 0) {
+            positionY = grid;
+        }
+        if (positionY > grid) {
+            positionY = 0;
+        }
+
+
+        ctx.fillStyle = "#E6E6FA";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+        ctx.fillStyle = "black";
+        for (var i = 0; i < snake.length; i++) {
+            ctx.fillRect(snake[i].x * grid, snake[i].y * grid, grid - 1, grid - 1);
+            if (snake[i].x == positionX && snake[i].y == positionY) {
+                tam = 5;
+                document.getElementById("box").style.backgroundColor = "#2F4F4F";
+                document.getElementById("fase").innerHTML = "Fase: 1";
+                document.getElementById("pontos").innerHTML = "Pontos: 0";
+            }
+        }
+
+        snake.push({
+            x: positionX,
+            y: positionY
+        });
+        while (snake.length > tam) {
+            snake.shift();
+        }
+
+        ctx.fillStyle = "red";
+        ctx.fillRect(foodX * grid, foodY * grid, grid - 1, grid - 1);
+
+        const cores =["gold", "black", "red", "blue", "yellow", "pink", "aqua", "white", "green"];
+
+        if (positionX == foodX && positionY == foodY) {
+            tam++;
+            foodX = Math.floor(Math.random() * grid);
+            foodY = Math.floor(Math.random() * grid);
+            let pontos = tam - 5;
+
+            document.getElementById('pontos').innerHTML = "Pontos: " + pontos;
+            if (pontos >= 2      && pontos <= 5) {
+                document.getElementById("box").style.backgroundColor = cores[0];
+                document.getElementById("fase").innerHTML = "Fase: 2";
+            }else if(pontos >= 6 && pontos <= 8){
+                document.getElementById("box").style.backgroundColor = cores[1];
+                document.getElementById("fase").innerHTML = "Fase: 3";
+            }else if(pontos >= 9 && pontos <= 11){
+                document.getElementById("box").style.backgroundColor = cores[2];
+                document.getElementById("fase").innerHTML = "Fase: 4";
+            }else if(pontos >= 12 && pontos <= 14){
+                document.getElementById("box").style.backgroundColor = cores[3];
+                document.getElementById("fase").innerHTML = "Fase: 5";
+            }else if(pontos >= 15 && pontos <= 17){
+                document.getElementById("box").style.backgroundColor = cores[4];
+                document.getElementById("fase").innerHTML = "Fase: 6";
+            }else if(pontos >= 18 && pontos <= 20){
+                document.getElementById("box").style.backgroundColor = cores[5];
+                document.getElementById("fase").innerHTML = "Fase: 7";
+            }else if(pontos >= 21 && pontos <= 23){
+                document.getElementById("box").style.backgroundColor = cores[6];
+                document.getElementById("fase").innerHTML = "Fase: 8";
+            }else if(pontos >= 24 && pontos <= 26){
+                document.getElementById("box").style.backgroundColor = cores[7];
+                document.getElementById("fase").innerHTML = "Fase: 9";
+            }else if(pontos >= 27){
+                document.getElementById("box").style.backgroundColor = cores[8];
+                document.getElementById("fase").innerHTML = "Fase: 10";
+            }
+        }
+        
+        
+    }
+    
+</script>
